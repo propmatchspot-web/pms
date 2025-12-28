@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Shield, ExternalLink, CheckCircle, AlertTriangle, ChevronRight, Globe, Calendar, DollarSign, TrendingDown, Clock, Layers, Star, MapPin, Monitor, XCircle, Check, CreditCard, PieChart } from 'lucide-react';
+import { Shield, ExternalLink, CheckCircle, AlertTriangle, ChevronRight, Globe, Calendar, DollarSign, TrendingDown, Clock, Layers, Star, MapPin, Monitor, XCircle, Check, CreditCard, PieChart, Heart, MessageSquare } from 'lucide-react';
 import Button from '../components/Button';
 import FirmCard from '../components/FirmCard';
-import { MOCK_FIRMS, MOCK_REVIEWS } from '../constants';
+import { MOCK_FIRMS } from '../constants';
 
 import { FirmService } from '../lib/services';
 import { PropFirm } from '../types';
+import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabaseClient';
 
 const FirmDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const [firm, setFirm] = useState<PropFirm | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Interaction State
+  const [isSaved, setIsSaved] = useState(false);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const [submitMsg, setSubmitMsg] = useState('');
 
   useEffect(() => {
     const fetchFirmDetails = async () => {
@@ -26,8 +37,71 @@ const FirmDetailPage: React.FC = () => {
         setLoading(false);
       }
     };
+
+    const checkSavedStatus = async () => {
+      if (!user || !id) return;
+      const { data } = await supabase
+        .from('saved_firms')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('firm_id', id)
+        .single();
+      setIsSaved(!!data);
+    };
+
+    const fetchReviews = async () => {
+      if (!id) return;
+      setReviewLoading(true);
+      const { data } = await supabase
+        .from('reviews')
+        .select('*, profiles(full_name)')
+        .eq('firm_id', id)
+        .order('created_at', { ascending: false });
+
+      if (data) setReviews(data);
+      setReviewLoading(false);
+    };
+
     fetchFirmDetails();
-  }, [id]);
+    checkSavedStatus();
+    fetchReviews();
+  }, [id, user]);
+
+  const toggleSave = async () => {
+    if (!user) return alert("Please log in to save firms.");
+
+    if (isSaved) {
+      await supabase.from('saved_firms').delete().match({ user_id: user.id, firm_id: id });
+      setIsSaved(false);
+    } else {
+      await supabase.from('saved_firms').insert({ user_id: user.id, firm_id: id });
+      setIsSaved(true);
+    }
+  };
+
+  const submitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    const { error } = await supabase.from('reviews').insert({
+      user_id: user.id,
+      firm_id: id,
+      rating: newReview.rating,
+      comment: newReview.comment,
+      status: 'pending' // Auto-approve or pending based on policy
+    });
+
+    if (error) {
+      setSubmitMsg("Failed to post review.");
+    } else {
+      setSubmitMsg("Review submitted successfully!");
+      setNewReview({ rating: 5, comment: '' });
+      setShowReviewForm(false);
+      // Refresh reviews
+      const { data } = await supabase.from('reviews').select('*, profiles(full_name)').eq('firm_id', id).order('created_at', { ascending: false });
+      if (data) setReviews(data);
+    }
+  };
 
   // Scroll spy for active tab
   useEffect(() => {
@@ -134,9 +208,18 @@ const FirmDetailPage: React.FC = () => {
 
               {/* CTA */}
               <div className="flex flex-col gap-3 w-full md:w-auto md:min-w-[200px]">
-                <button className="flex w-full cursor-pointer items-center justify-center rounded-lg h-11 px-6 bg-brand-gold text-brand-black text-sm font-bold shadow-[0_0_15px_rgba(246,174,19,0.15)] hover:bg-brand-goldHover hover:shadow-[0_0_20px_rgba(246,174,19,0.3)] transition-all">
-                  Visit Official Website
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={toggleSave}
+                    className={`flex items-center justify-center w-11 h-11 rounded-lg border transition-all ${isSaved ? 'bg-brand-gold text-brand-black border-brand-gold' : 'bg-brand-charcoal border-brand-border text-brand-muted hover:text-white hover:border-white'}`}
+                    title={isSaved ? "Remove from Favorites" : "Add to Favorites"}
+                  >
+                    <Heart size={20} className={isSaved ? "fill-current" : ""} />
+                  </button>
+                  <button className="flex-1 cursor-pointer items-center justify-center rounded-lg h-11 px-6 bg-brand-gold text-brand-black text-sm font-bold shadow-[0_0_15px_rgba(246,174,19,0.15)] hover:bg-brand-goldHover hover:shadow-[0_0_20px_rgba(246,174,19,0.3)] transition-all">
+                    Visit Official Website
+                  </button>
+                </div>
                 <p className="text-center text-xs text-brand-muted flex items-center justify-center gap-1">
                   <span className="material-symbols-outlined text-[14px] text-green-500">local_offer</span> Exclusive: 100% Refund
                 </p>
@@ -339,33 +422,69 @@ const FirmDetailPage: React.FC = () => {
           {/* Tab Content: Reviews */}
           <div id="reviews" className="flex flex-col gap-6 pt-8 border-t border-brand-border mt-8 scroll-mt-32">
             <div className="flex items-center justify-between">
-              <h3 className="text-white text-xl font-bold">Trader Reviews</h3>
-              <div className="flex items-center gap-2">
-                <span className="text-brand-muted text-sm hidden sm:inline">Sort by:</span>
-                <select className="bg-brand-charcoal border-brand-border text-white text-sm rounded-lg focus:ring-brand-gold focus:border-brand-gold p-2 outline-none">
-                  <option>Most Relevant</option>
-                  <option>Newest</option>
-                  <option>Highest Rating</option>
-                </select>
-              </div>
+              <h3 className="text-white text-xl font-bold">Trader Reviews ({reviews.length})</h3>
+
+              {!showReviewForm && (
+                <Button onClick={() => user ? setShowReviewForm(true) : alert("Log in to review")} size="sm" variant="secondary">
+                  <MessageSquare size={16} className="mr-2" /> Write a Review
+                </Button>
+              )}
             </div>
 
+            {/* Review Submission Form */}
+            {showReviewForm && (
+              <div className="bg-brand-surface border border-brand-border rounded-xl p-6 animate-fade-in-up">
+                <h4 className="text-white font-bold mb-4">Write your review</h4>
+                <form onSubmit={submitReview} className="flex flex-col gap-4">
+                  <div>
+                    <label className="text-brand-muted text-sm mb-2 block">Rating</label>
+                    <div className="flex gap-2">
+                      {[1, 2, 3, 4, 5].map(star => (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setNewReview({ ...newReview, rating: star })}
+                          className={`p-1 transition-transform hover:scale-110 ${newReview.rating >= star ? 'text-brand-gold' : 'text-gray-600'}`}
+                        >
+                          <Star fill={newReview.rating >= star ? "currentColor" : "none"} size={24} />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-brand-muted text-sm mb-2 block">Your Experience</label>
+                    <textarea
+                      value={newReview.comment}
+                      onChange={e => setNewReview({ ...newReview, comment: e.target.value })}
+                      placeholder="Share your experience with this firm..."
+                      className="w-full bg-brand-black border border-brand-border rounded-lg p-3 text-white focus:border-brand-gold outline-none min-h-[100px]"
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-3">
+                    <Button type="submit">Submit Review</Button>
+                    <Button type="button" variant="ghost" onClick={() => setShowReviewForm(false)}>Cancel</Button>
+                  </div>
+                  {submitMsg && <p className="text-green-500 text-sm">{submitMsg}</p>}
+                </form>
+              </div>
+            )}
+
             <div className="flex flex-col gap-4">
-              {MOCK_REVIEWS.filter(r => r.firmId === firm.id || r.firmId === '1').map((review) => (
+              {reviews.length > 0 ? reviews.map((review) => (
                 <div key={review.id} className="bg-brand-charcoal border border-brand-border rounded-xl p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex gap-3">
                       <div className="w-10 h-10 rounded-full bg-brand-gold/20 text-brand-gold flex items-center justify-center font-bold uppercase border border-brand-gold/30">
-                        {review.user.substring(0, 2)}
+                        {review.profiles?.full_name?.substring(0, 2) || 'TR'}
                       </div>
                       <div>
-                        <div className="text-white font-bold">{review.user}</div>
+                        <div className="text-white font-bold">{review.profiles?.full_name || 'Trader'}</div>
                         <div className="text-brand-muted text-xs flex items-center gap-1">
-                          {review.verified && <CheckCircle size={10} className="text-green-500" />} Funded Trader • {review.date}
+                          {new Date(review.created_at).toLocaleDateString()}
                         </div>
                       </div>
                     </div>
-                    <span className="bg-brand-black px-2 py-1 rounded text-xs text-brand-muted border border-brand-border">Verified Purchase</span>
                   </div>
                   <div className="flex text-brand-gold mb-2">
                     {[1, 2, 3, 4, 5].map(star => (
@@ -375,38 +494,21 @@ const FirmDetailPage: React.FC = () => {
                     ))}
                   </div>
                   <p className="text-gray-300 text-sm leading-relaxed">
-                    {review.content}
+                    {review.comment}
                   </p>
                 </div>
-              ))}
-
-              {/* Fallback mock review if list is empty or short */}
-              <div className="bg-brand-charcoal border border-brand-border rounded-xl p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-900/30 text-blue-400 flex items-center justify-center font-bold border border-blue-500/30">SM</div>
-                    <div>
-                      <div className="text-white font-bold">Sarah M.</div>
-                      <div className="text-brand-muted text-xs">Evaluation Phase • 1 week ago</div>
-                    </div>
-                  </div>
+              )) : (
+                <div className="text-center py-12 text-brand-muted bg-brand-charcoal/50 rounded-xl border border-brand-border border-dashed">
+                  <p>No reviews yet. Be the first to share your experience!</p>
                 </div>
-                <div className="flex text-brand-gold mb-2">
-                  <span className="material-symbols-outlined text-[18px]">star</span>
-                  <span className="material-symbols-outlined text-[18px]">star</span>
-                  <span className="material-symbols-outlined text-[18px]">star</span>
-                  <span className="material-symbols-outlined text-[18px]">star</span>
-                  <span className="material-symbols-outlined text-[18px] text-brand-border">star</span>
-                </div>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  Great platform execution. Support is a bit slow to respond during weekends, but otherwise a solid experience. The profit split is a huge plus.
-                </p>
-              </div>
+              )}
             </div>
 
-            <button className="w-full py-3 text-brand-muted text-sm font-medium border border-brand-border rounded-lg hover:bg-brand-charcoal hover:text-white transition-colors">
-              Load More Reviews
-            </button>
+            {reviews.length > 5 && (
+              <button className="w-full py-3 text-brand-muted text-sm font-medium border border-brand-border rounded-lg hover:bg-brand-charcoal hover:text-white transition-colors">
+                Load More Reviews
+              </button>
+            )}
           </div>
 
           {/* Similar Firms Carousel */}
