@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/LandingPage';
 import Footer from './components/Footer';
@@ -41,58 +41,67 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; role?: 'admin' | 'us
   return <>{children}</>;
 };
 
-function App() {
+// Main Layout Component (Requires Router Context)
+const MainLayout = () => {
   const location = useLocation();
   const isOffersPage = location.pathname === '/offers';
   const isAdminPage = location.pathname.startsWith('/admin');
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup';
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-gray-900 flex flex-col font-sans text-white selection:bg-brand-500 selection:text-white">
-        {!isOffersPage && !isAdminPage && !isAuthPage && <Navbar />}
+    <div className="min-h-screen bg-gray-900 flex flex-col font-sans text-white selection:bg-brand-500 selection:text-white">
+      {!isOffersPage && !isAdminPage && !isAuthPage && <Navbar />}
 
-        <main className="flex-grow">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/firms" element={<BrowseFirmsPage />} />
-            <Route path="/firm/:id" element={<FirmDetailPage />} />
-            <Route path="/compare" element={<ComparePage />} />
-            <Route path="/offers" element={<OffersPage />} />
+      <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/firms" element={<BrowseFirmsPage />} />
+          <Route path="/firm/:id" element={<FirmDetailPage />} />
+          <Route path="/compare" element={<ComparePage />} />
+          <Route path="/offers" element={<OffersPage />} />
 
-            {/* Auth Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+          {/* Auth Routes */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
-            {/* Admin Routes - Protected */}
-            <Route path="/admin" element={
-              <ProtectedRoute role="admin">
-                <AdminLayout />
-              </ProtectedRoute>
-            }>
-              <Route index element={<AdminDashboard />} />
-              <Route path="firms" element={<AdminFirmsPage />} />
-              <Route path="reviews" element={<AdminReviewsPage />} />
-              <Route path="payouts" element={<AdminPayoutsPage />} />
-              <Route path="badges" element={<AdminBadgesPage />} />
-              <Route path="offers" element={<AdminOffersPage />} />
-              <Route path="users" element={<AdminUsersPage />} />
-              <Route path="settings" element={<AdminSettingsPage />} />
-            </Route>
+          {/* Admin Routes - Protected */}
+          <Route path="/admin" element={
+            <ProtectedRoute role="admin">
+              <AdminLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="firms" element={<AdminFirmsPage />} />
+            <Route path="reviews" element={<AdminReviewsPage />} />
+            <Route path="payouts" element={<AdminPayoutsPage />} />
+            <Route path="badges" element={<AdminBadgesPage />} />
+            <Route path="offers" element={<AdminOffersPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+          </Route>
 
-            {/* Protected User Dashboard */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <UserDashboard />
-              </ProtectedRoute>
-            } />
+          {/* Protected User Dashboard */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <UserDashboard />
+            </ProtectedRoute>
+          } />
 
-          </Routes>
-        </main>
+        </Routes>
+      </main>
 
-        {!isOffersPage && !isAdminPage && !isAuthPage && <Footer />}
-      </div>
-    </AuthProvider>
+      {!isOffersPage && !isAdminPage && !isAuthPage && <Footer />}
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <HashRouter>
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
+    </HashRouter>
   );
 }
 
