@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prop Match Spot</title>
+  <link rel="icon"
+    href="http://zainenterprisespakistan.com/wp-content/uploads/2025/12/Green-Blue-Bold-Modern-Creative-Studio-Logo-1.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              gold: '#f6ae13',
+              goldHover: '#d9970c',
+              black: '#181611',
+              dark: '#181611',
+              charcoal: '#221c10',
+              surface: '#2a251a',
+              border: '#3a3427',
+              muted: '#bbb19b',
+            },
+            // User requested colors for Admin Dashboard (Synced with Landing Page)
+            primary: "#f6ae13",         // Matches brand.gold
+            "background-light": "#f8f7f5",
+            "background-dark": "#181611", // Matches brand.black (Landing Page Background)
+            "surface-dark": "#221c10",    // Matches brand.charcoal (Card Background)
+            "surface-highlight": "#2a251a", // Matches brand.surface (Hover/Input Background)
+            "border-dark": "#3a3427",     // Matches brand.border
+          },
+          backgroundImage: {
+            'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+            'hero-glow': 'conic-gradient(from 180deg at 50% 50%, #f6ae1333 0deg, transparent 60deg, transparent 300deg, #f6ae1333 360deg)',
+            'gold-gradient': 'linear-gradient(135deg, #f6ae13 0%, #ffd700 50%, #f6ae13 100%)',
+          },
+          boxShadow: {
+            'glow': '0 0 20px -5px rgba(246, 174, 19, 0.3)',
+            'neon': '0 0 30px -5px rgba(246, 174, 19, 0.5)',
+            'button-glow': '0 0 40px -10px rgba(246, 174, 19, 0.6)',
+          },
+          animation: {
+            'fade-in-up': 'fadeInUp 0.8s ease-out',
+            'breathing-glow': 'breathingGlow 6s ease-in-out infinite',
+            'float': 'float 8s ease-in-out infinite',
+            'float-delayed': 'float 8s ease-in-out 4s infinite',
+            'grid-flow': 'gridFlow 20s linear infinite',
+            'text-shimmer': 'textShimmer 3s linear infinite',
+            'aurora': 'aurora 10s ease-in-out infinite alternate',
+            'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+            'shine': 'shine 6s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            breathingGlow: {
+              '0%, 100%': { opacity: '0.4', transform: 'scale(1)' },
+              '50%': { opacity: '0.8', transform: 'scale(1.1)' },
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-20px)' },
+            },
+            gridFlow: {
+              '0%': { transform: 'translateY(0)' },
+              '100%': { transform: 'translateY(40px)' },
+            },
+            textShimmer: {
+              '0%': { backgroundPosition: '0% 50%' },
+              '100%': { backgroundPosition: '200% 50%' },
+            },
+            aurora: {
+              '0%': { transform: 'translate(-50%, -50%) scale(1)', opacity: '0.15' },
+              '50%': { transform: 'translate(-50%, -55%) scale(1.2)', opacity: '0.25' },
+              '100%': { transform: 'translate(-45%, -50%) scale(1.1)', opacity: '0.15' },
+            },
+            shine: {
+              '0%': { left: '-100%', opacity: '0' },
+              '20%': { left: '100%', opacity: '0.6' },
+              '100%': { left: '100%', opacity: '0' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #181611;
+      color: #e5e5e5;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #181611;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #3a3427;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #554c3a;
+    }
+
+    .bg-grid-white {
+      background-size: 40px 40px;
+      background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+
+    .rotate-x-60 {
+      transform: rotateX(60deg);
+    }
+
+    /* Range slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: #f6ae13;
+      cursor: pointer;
+      margin-top: -6px;
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: #3a3427;
+      border-radius: 2px;
+    }
+  </style>
+
+  <link rel="stylesheet" href="/index.css">
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^6.22.3"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/assets/index-DMBaVjdU.js"></script>
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+
+</html>
