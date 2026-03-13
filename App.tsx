@@ -30,6 +30,7 @@ import AdminRewardsPage from './pages/admin/AdminRewardsPage';
 import AdminCompetitionsPage from './pages/admin/AdminCompetitionsPage';
 import AdminMarketingPage from './pages/admin/AdminMarketingPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import AdminSpotReplayCouponsPage from './pages/admin/AdminSpotReplayCouponsPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import LoginPage from './pages/auth/LoginPage';
 import SignupPage from './pages/auth/SignupPage';
@@ -125,6 +126,7 @@ const MainLayout = () => {
             <Route path="rewards" element={<AdminRewardsPage />} />
             <Route path="marketing" element={<AdminMarketingPage />} />
             <Route path="competitions" element={<AdminCompetitionsPage />} />
+            <Route path="spot-replay-discounts" element={<AdminSpotReplayCouponsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
 
