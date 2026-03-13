@@ -577,16 +577,16 @@ export default function SpotReplayDashboard() {
                                     ))}
                                 </div>
 
-                                {/* CTA */}
+                                {/* CTA — NOWPayments Crypto Checkout */}
                                 <a
-                                    href="https://replay.propmatchspot.com/signup"
+                                    href="https://nowpayments.io/payment/?iid=4409214177"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="group/btn relative w-full flex justify-center py-3.5 px-6 rounded-xl text-sm font-bold text-black bg-brand-gold hover:bg-white transition-all duration-300 text-center overflow-hidden shadow-[0_0_30px_-5px_rgba(246,174,19,0.5)]"
                                 >
                                     <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shine_6s_ease-in-out_infinite]" />
                                     <span className="relative flex items-center gap-2">
-                                        Start Spot Exclusive <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+                                        Pay with Crypto <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                                     </span>
                                 </a>
                             </div>
