@@ -33,8 +33,9 @@ const AdminLayout: React.FC = () => {
                 { icon: CreditCard, label: 'Payouts', path: '/admin/payouts' }, // Placeholder route
                 { icon: Shield, label: 'Trust Badges', path: '/admin/badges' }, // Placeholder route
                 { icon: Trophy, label: 'Competitions', path: '/admin/competitions' },
-                { icon: Send, label: 'Marketing', path: '/admin/marketing' },
                 { icon: Tag, label: 'Offers', path: '/admin/offers' }, // Added to keep existing functionality
+                { icon: Tag, label: 'Spot Replay Discounts', path: '/admin/spot-replay-discounts' },
+                { icon: Send, label: 'Marketing', path: '/admin/marketing' },
             ]
         },
         {
@@ -72,7 +73,7 @@ const AdminLayout: React.FC = () => {
                     {menuItems.slice(1).map((section, idx) => (
                         <div key={idx}>
                             <div className="pt-4 pb-2 px-3 text-xs font-bold text-white/40 uppercase tracking-wider">{section.section}</div>
-                            {section.items.map((item) => {
+                            {section.items?.map((item) => {
                                 // Apply the new NavLink styling only for the 'Settings' section items
                                 if (section.section === 'Settings') {
                                     return (
